@@ -1,0 +1,44 @@
+---
+title: "384-to-96-conversion"
+author: "Hyun Yong Jin"
+date: "April 30, 2019"
+output: html_document
+---
+
+
+```{r 384-to-96-conversion}
+#Converting 394 wells into 96x4 format (RT2 profiler qPCR analysis)
+
+library(tidyverse)
+a <- read.csv("test-384-to-96.csv", header=F) %>% as.tibble
+head(a)
+
+library(dplyr) #For table transformation
+
+#classical way of doing it usiing seq
+#odd <- a[seq(1,nrow(a), by=2),]
+
+odd <- a %>% filter(row_number() %% 2 !=0) #Delete even rows
+even <- a %>% filter(row_number() %% 2 !=1) #Delete odd rows (every second rows starting from 1) %% is mod
+
+#next is selecting nth rows and seperate odd and even table
+#Use slice --> filter row by position
+
+odd.a <- odd %>% slice(1:12, 25:36, 49:60, 73:84, 97:108, 121:132, 145:156, 169:180)
+odd.b <- odd %>% slice(13:24, 37:48, 61:72, 85:96, 109:120, 133:144, 157:168, 181:192)
+even.a <- even %>% slice(1:12, 25:36, 49:60, 73:84, 97:108, 121:132, 145:156, 169:180)
+even.b <- even %>% slice(13:24, 37:48, 61:72, 85:96, 109:120, 133:144, 157:168, 181:192)
+
+View(odd.a)
+View(odd.b)
+View(even.a)
+View(even.b)
+
+final <- bind_cols(odd.a, even.a, odd.b, even.b)
+
+colnames(final) <- c("1", "2", "3", "4")
+
+#Works as expected!
+
+
+```
