@@ -1,0 +1,47 @@
+---
+title: "Automatic Gene Selection from NanoString"
+author: "Hyun Yong Jin"
+date: "March 30, 2020"
+output: html_document
+---
+
+```{r Library}
+
+install.packages("dplyr") #Install package only when package has not been installed.
+library(dplyr)
+#Requirement: header of gene list in data-DE is "Gene"
+#Requirement2: ID for each gene should be identical. e.g. PDCD1-mRNA in data-DE.csv and PDCD1 in list.csv. PDCD1 should be converted to PDCD1-mRNA. IL-7R /= IL7R. Should be used IL7R to be consistant.   
+#Requirement3: list contains header "Gene" to access the element as factor. 
+```
+
+```{r data import}
+list <- (read.csv("list.csv", header=T))$Gene #using header Gene, import list of genes as factor
+dat <- read.csv("data.csv", header=T)
+```
+
+```{r Select genes from NanoString}
+
+#Selection of genes of interest
+func_select <- function (list, dat) {
+results <- dat %>%
+  filter(Gene %in% list) %>%
+  arrange(desc(P.value))
+write.csv(results, file="Selected_genes.csv")
+}
+
+#Selection of significant genes
+func_sig <- function (dat) {
+results <- dat %>%
+  filter(P.value<0.01 & (Log2.fold.change>2)) %>%
+  arrange(desc(P.value))
+write.csv(results, file="Significant_genes.csv")
+}
+
+```
+
+```{r Function to easy execution}
+func_select(list, dat)
+func_sig(dat)
+
+```
+
